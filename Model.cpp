@@ -70,8 +70,8 @@ void Model::clearWindow()
 
 void Model::initMechanism()
 {
-    this->t0 = this->createBaseTexture();
-    this->t_image = TextureLoader(renderer, "my_img.png");
+    this->t0 = textureCreateFromSurface(this->renderer, createBaseSurface());
+    this->t_image = textureLoader(renderer, "my_img.png");
 
     this->p1 = {200.f, 100.f};
     this->p2 = {400.f, 100.f};
@@ -102,7 +102,7 @@ void Model::renderMechanism()
         );
 }
 
-SDL_Texture *Model::createBaseTexture()
+SDL_Surface *createBaseSurface()
 {
     SDL_Surface* surface = SDL_CreateSurface(
         100, 100
@@ -126,14 +126,9 @@ SDL_Texture *Model::createBaseTexture()
         , SDL_arraysize(base)
         );
     SDL_RenderPresent(renderer);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(
-        this->renderer
-        , surface
-        );
+
+    SDL_Log("[Model::createBaseSurface] Surface created: %p", surface);
 
     SDL_DestroyRenderer(renderer);
-    SDL_DestroySurface(surface);
-
-    SDL_Log("[Model::createBaseTexture] Texture created: %p", texture);
-    return texture;
+    return surface;
 }
