@@ -23,5 +23,6 @@ protected:
     SDL_Texture* createBaseTexture();
 
     SDL_Texture *t0;
+    SDL_Texture *t_image;
     SDL_FPoint p1, p2;
 };

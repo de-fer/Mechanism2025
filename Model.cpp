@@ -1,4 +1,5 @@
 #include "Model.hpp"
+#include "TextureLoader.hpp"
 
 Model::Model()
 {
@@ -70,6 +71,7 @@ void Model::clearWindow()
 void Model::initMechanism()
 {
     this->t0 = this->createBaseTexture();
+    this->t_image = TextureLoader(renderer, "my_img.png");
 
     this->p1 = {200.f, 100.f};
     this->p2 = {400.f, 100.f};
@@ -82,10 +84,9 @@ void Model::renderMechanism()
     SDL_FRect r0 = {100.f, 200.f, 100.f, 100.f};
     SDL_RenderTexture(
         this->renderer
-        , this->t0
+        , this->t_image
         , nullptr
-        ,
-        &r0
+        , &r0
         );
 
     SDL_FRect r1 = {300.f, 50.f, 100.f, 100.f};
