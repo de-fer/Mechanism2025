@@ -17,4 +17,11 @@ public:
 
 protected:
     void clearWindow();
+    void initMechanism();
+    void renderMechanism();
+
+    SDL_Texture* createBaseTexture();
+
+    SDL_Texture *t0;
+    SDL_FPoint p1, p2;
 };

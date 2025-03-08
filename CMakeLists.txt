@@ -5,8 +5,15 @@ project(Mechanism)
 find_package (SDL3 CONFIG REQUIRED)
 
 add_executable(${PROJECT_NAME} main.cpp
-    Model.hpp Model.cpp)
+)
 
-target_sources(${PROJECT_NAME} PRIVATE Model.hpp Model.cpp)
+target_sources(${PROJECT_NAME} PRIVATE
+    Model.hpp
+    Model.cpp
+    Node.hpp
+    Texture.hpp
+)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    SDL3::SDL3
+)
