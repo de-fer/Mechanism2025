@@ -1,5 +1,5 @@
 #include "Model.hpp"
-#include "TextureLoader.hpp"
+#include "TextureMaker.hpp"
 
 Model::Model()
 {
