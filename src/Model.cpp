@@ -71,7 +71,7 @@ void Model::clearWindow()
 void Model::initMechanism()
 {
     this->t0 = textureCreateFromSurface(this->renderer, createBaseSurface());
-    this->t_image = textureLoader(renderer, "my_img.png");
+    this->t_image = textureLoader(renderer, "assets/my_img.png");
 
     this->p1 = {200.f, 100.f};
     this->p2 = {400.f, 100.f};
