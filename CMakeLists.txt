@@ -15,12 +15,15 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Mechanism_HEADERS_DIR})
 #Сторонние пакеты
 find_package (SDL3 CONFIG REQUIRED)
 find_package (SDL3_image CONFIG REQUIRED)
+find_package (nlohmann_json REQUIRED)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     SDL3::SDL3
     SDL3_image::SDL3_image-shared
+    nlohmann_json::nlohmann_json
 )
 
 # Копируем папку assets и configs  в папку сборки
 file(COPY ${CMAKE_SOURCE_DIR}/assets DESTINATION ${CMAKE_BINARY_DIR})
+file(REMOVE_RECURSE ${CMAKE_BINARY_DIR}/configs)
 file(COPY ${CMAKE_SOURCE_DIR}/configs DESTINATION ${CMAKE_BINARY_DIR})
