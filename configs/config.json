@@ -1,0 +1,14 @@
+{
+    "window_settings":
+    {
+        "name": "Mechanism [ALT]",
+        "width": 480,
+        "height": 360,
+        "bg_color":
+        {
+            "r": 0.7,
+            "g": 0.7,
+            "b": 0.7
+        }
+    }
+}

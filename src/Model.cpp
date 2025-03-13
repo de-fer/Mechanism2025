@@ -13,6 +13,8 @@ Model::~Model()
 
 SDL_AppResult Model::init()
 {
+    this->config = loadJson("configs/config.json");
+
     if (!SDL_Init(SDL_INIT_VIDEO))
     {
         SDL_Log("[Model::init] Couldn't init SDL: %s", SDL_GetError());
@@ -20,8 +22,9 @@ SDL_AppResult Model::init()
     }
 
     if (!SDL_CreateWindowAndRenderer(
-            "Model"
-            , 480, 360
+            this->config["window_settings"]["name"].get<std::string>().c_str()
+            , this->config["window_settings"]["width"].get<int>()
+            , this->config["window_settings"]["height"].get<int>()
             , 0
             , &this->window
             , &this->renderer
@@ -59,9 +62,14 @@ SDL_AppResult Model::iterate()
 
 void Model::clearWindow()
 {
+    float colors[] = {
+        this->config["window_settings"]["bg_color"]["r"].get<float>(),
+        this->config["window_settings"]["bg_color"]["g"].get<float>(),
+        this->config["window_settings"]["bg_color"]["b"].get<float>()
+    };
     SDL_SetRenderDrawColorFloat(
         this->renderer
-        , 0.7f, 0.7f, 0.7f
+        ,colors[0], colors[1], colors[2]
         , SDL_ALPHA_OPAQUE_FLOAT
         );
 

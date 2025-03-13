@@ -1,11 +1,14 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include "JsonLoader.hpp"
 
 class Model
 {
     SDL_Window *window = nullptr;
     SDL_Renderer *renderer = nullptr;
+
+    json config;
 
 public:
     Model();
