@@ -50,7 +50,8 @@ SDL_AppResult Model::onEvent(SDL_Event *event)
 SDL_AppResult Model::iterate()
 {
     this->clearWindow();
-    this->renderMechanism();
+
+    this->ecs.progress();
 
     SDL_RenderPresent(this->renderer);
     return SDL_APP_CONTINUE;
@@ -69,42 +70,59 @@ void Model::clearWindow()
 
 void Model::initMechanism()
 {
-    this->n0.position = {100.f, 200.f};
-    this->n0.angle = 0.0;
-    this->t0 = this->createBaseTexture();
+    this->renderMechanism = this->createRenderMechanismSystem();
+
+    this->e0 = this->ecs.entity()
+        .insert([this](Node &n, Texture &t)
+        {
+            n.position = {100.f, 200.f};
+            n.angle = 0.0;
+            t = this->createBaseTexture();
+        });
+    this->e1 = this->ecs.entity()
+        .insert([this](Node &n, Texture &t)
+        {
+            n.position = {300.f, 100.f};
+            n.angle = -90.0;
+            t = this->createBaseTexture();
+        });
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
 }
 
-void Model::renderMechanism()
+flecs::system Model::createRenderMechanismSystem()
 {
-    SDL_FRect r0 = {
-        this->n0.position.x - this->t0.center.x
-        , this->n0.position.y - this->t0.center.y
-        , this->t0.rect.w
-        , this->t0.rect.h
-        };
-    if (this->n0.angle)
+    return this->ecs.system<const Node, const Texture>()
+    .each([this](const Node &n, const Texture &t)
     {
-        SDL_RenderTextureRotated(
-            this->renderer
-            , this->t0.texture
-            , &this->t0.rect
-            , &r0
-            , this->n0.angle
-            , &this->t0.center
-            , SDL_FLIP_NONE
-            );
-    }
-    else
-    {
-        SDL_RenderTexture(
-            this->renderer
-            , this->t0.texture
-            , &this->t0.rect
-            , &r0
-            );
-    }
+        SDL_FRect r = {
+            n.position.x - t.center.x
+            , n.position.y - t.center.y
+            , t.rect.w
+            , t.rect.h
+            };
+        if (n.angle)
+        {
+            SDL_RenderTextureRotated(
+                this->renderer
+                , t.texture
+                , &t.rect
+                , &r
+                , n.angle
+                , &t.center
+                , SDL_FLIP_NONE
+                );
+        }
+        else
+        {
+            SDL_RenderTexture(
+                this->renderer
+                , t.texture
+                , &t.rect
+                , &r
+                );
+        }
+    });
 }
 
 Texture Model::createBaseTexture()

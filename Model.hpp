@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <flecs.h>
 
 #include "Node.hpp"
 #include "Texture.hpp"
@@ -21,10 +22,12 @@ public:
 protected:
     void clearWindow();
     void initMechanism();
-    void renderMechanism();
+    flecs::system createRenderMechanismSystem();
 
     Texture createBaseTexture();
 
-    Node n0;
-    Texture t0;
+    flecs::world ecs;
+    flecs::system renderMechanism;
+    flecs::entity e0;
+    flecs::entity e1;
 };
