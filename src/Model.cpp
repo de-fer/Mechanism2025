@@ -89,23 +89,22 @@ void Model::initMechanism()
 
 void Model::renderMechanism()
 {
-    SDL_FRect r0 = {this->p1.x, this->p1.y, 100.f, 100.f};
+    SDL_FRect r0 = {this->p1.x, this->p1.y, static_cast<float>(this->t_image.rect.w), static_cast<float>(this->t_image.rect.h)};
     SDL_RenderTexture(
         this->renderer
-        , this->t_image
+        , this->t_image.texture
         , nullptr
         , &r0
         );
 
-    SDL_FRect r1 = {this->p2.x, this->p2.y, 100.f, 100.f};
-    SDL_FPoint c1 = {50.f, 50.f};
+    SDL_FRect r1 = {this->p2.x, this->p2.y, static_cast<float>(this->t0.rect.w), static_cast<float>(this->t0.rect.h)};
     SDL_RenderTextureRotated(
         this->renderer
-        , this->t0
+        , this->t0.texture
         , nullptr
         , &r1
         , -90
-        , &c1
+        , &t0.center
         , SDL_FLIP_NONE
         );
 }

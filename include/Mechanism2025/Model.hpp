@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include "JsonLoader.hpp"
+#include "Texture.hpp"
 
 class Model
 {
@@ -23,8 +24,8 @@ protected:
     void initMechanism();
     void renderMechanism();
 
-    SDL_Texture *t0;
-    SDL_Texture *t_image;
+    Texture t0;
+    Texture t_image;
     SDL_FPoint p1, p2;
 };
 

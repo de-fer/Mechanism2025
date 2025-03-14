@@ -16,7 +16,7 @@ static Texture textureCreateFromSurface(SDL_Renderer* renderer, SDL_Surface* sur
         SDL_Log("[TextureMaker::textureCreateFromSurface] The texture was created as %p from surface %p", texture.texture, surface);
     }
     SDL_SetTextureScaleMode(texture.texture, SDL_SCALEMODE_NEAREST);
-    texture.rect = {0, 0, surface->w, surface->h};
+    texture.rect = {0, 0, (float)surface->w, (float)surface->h};
     texture.center = {surface->w*0.5f, surface->h*0.5f};
 
     SDL_DestroySurface(surface);
