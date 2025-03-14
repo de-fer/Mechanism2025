@@ -69,48 +69,58 @@ void Model::clearWindow()
 
 void Model::initMechanism()
 {
+    this->n0.position = {100.f, 200.f};
+    this->n0.angle = 0.0;
     this->t0 = this->createBaseTexture();
-
-    this->p1 = {200.f, 100.f};
-    this->p2 = {400.f, 100.f};
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
 }
 
 void Model::renderMechanism()
 {
-    SDL_FRect r0 = {100.f, 200.f, 100.f, 100.f};
-    SDL_RenderTexture(
-        this->renderer
-        , this->t0
-        , nullptr
-        ,
-        &r0
-        );
-
-    SDL_FRect r1 = {300.f, 50.f, 100.f, 100.f};
-    SDL_FPoint c1 = {50.f, 50.f};
-    SDL_RenderTextureRotated(
-        this->renderer
-        , this->t0
-        , nullptr
-        , &r1
-        , -90
-        , &c1
-        , SDL_FLIP_NONE
-        );
+    SDL_FRect r0 = {
+        this->n0.position.x - this->t0.center.x
+        , this->n0.position.y - this->t0.center.y
+        , this->t0.rect.w
+        , this->t0.rect.h
+        };
+    if (this->n0.angle)
+    {
+        SDL_RenderTextureRotated(
+            this->renderer
+            , this->t0.texture
+            , &this->t0.rect
+            , &r0
+            , this->n0.angle
+            , &this->t0.center
+            , SDL_FLIP_NONE
+            );
+    }
+    else
+    {
+        SDL_RenderTexture(
+            this->renderer
+            , this->t0.texture
+            , &this->t0.rect
+            , &r0
+            );
+    }
 }
 
-SDL_Texture *Model::createBaseTexture()
+Texture Model::createBaseTexture()
 {
+    Texture result;
+    result.rect = {0.f, 0.f, 100.f, 100.f};
+
     SDL_Surface* surface = SDL_CreateSurface(
-        100, 100
+        static_cast<int>(result.rect.w) // Ширина
+        , static_cast<int>(result.rect.h) // Высота
         , SDL_PIXELFORMAT_RGBA32
         );
     SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
 
     SDL_FPoint base[4];
-    base[0] = base[3] = {50.f, 50.f};
+    result.center = base[0] = base[3] = {50.f, 50.f};
     base[1] = {10.f, 90.f};
     base[2] = {90.f, 90.f};
 
@@ -125,7 +135,7 @@ SDL_Texture *Model::createBaseTexture()
         , SDL_arraysize(base)
         );
     SDL_RenderPresent(renderer);
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(
+    result.texture = SDL_CreateTextureFromSurface(
         this->renderer
         , surface
         );
@@ -133,6 +143,6 @@ SDL_Texture *Model::createBaseTexture()
     SDL_DestroyRenderer(renderer);
     SDL_DestroySurface(surface);
 
-    SDL_Log("[Model::createBaseTexture] Texture created: %p", texture);
-    return texture;
+    SDL_Log("[Model::createBaseTexture] Texture created: %p [%i x %i]", result.texture, result.rect.w, result.rect.h);
+    return result;
 }

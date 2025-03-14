@@ -2,6 +2,9 @@
 
 #include <SDL3/SDL.h>
 
+#include "Node.hpp"
+#include "Texture.hpp"
+
 class Model
 {
     SDL_Window *window = nullptr;
@@ -20,8 +23,8 @@ protected:
     void initMechanism();
     void renderMechanism();
 
-    SDL_Texture* createBaseTexture();
+    Texture createBaseTexture();
 
-    SDL_Texture *t0;
-    SDL_FPoint p1, p2;
+    Node n0;
+    Texture t0;
 };

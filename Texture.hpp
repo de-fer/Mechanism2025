@@ -5,5 +5,6 @@
 struct Texture
 {
     SDL_Texture *texture;
-    SDL_FPoint center, size;
+    SDL_FRect rect;
+    SDL_FPoint center;
 };
