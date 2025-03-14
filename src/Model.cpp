@@ -54,7 +54,8 @@ SDL_AppResult Model::onEvent(SDL_Event *event)
 SDL_AppResult Model::iterate()
 {
     this->clearWindow();
-    this->renderMechanism();
+
+    this->world.progress();
 
     SDL_RenderPresent(this->renderer);
     return SDL_APP_CONTINUE;
@@ -78,35 +79,60 @@ void Model::clearWindow()
 
 void Model::initMechanism()
 {
-    this->t0 = textureCreateFromSurface(this->renderer, createBaseSurface());
-    this->t_image = textureLoader(renderer, "assets/my_img.png");
+    this->renderMechanism = this->createRenderMechanismSystem();
 
-    this->p1 = {100.f, 200.f};
-    this->p2 = {300.f, 50.f};
+    this->e0 = this->world.entity()
+        .insert([this](Node &n, Texture &t)
+        {
+            n.pos = {100.f, 200.f};
+            n.angle = 0.;
+            t = textureLoader(this->renderer, "assets/my_img.png");
+        });
+
+    this->e1 = this->world.entity()
+        .insert([this](Node &n, Texture &t)
+        {
+            n.pos = {300.f, 100.f};
+            n.angle = -90.;
+            t = textureCreateFromSurface(this->renderer, createBaseSurface());
+        });
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
 }
 
-void Model::renderMechanism()
+flecs::system Model::createRenderMechanismSystem()
 {
-    SDL_FRect r0 = {this->p1.x, this->p1.y, static_cast<float>(this->t_image.rect.w), static_cast<float>(this->t_image.rect.h)};
-    SDL_RenderTexture(
-        this->renderer
-        , this->t_image.texture
-        , nullptr
-        , &r0
-        );
-
-    SDL_FRect r1 = {this->p2.x, this->p2.y, static_cast<float>(this->t0.rect.w), static_cast<float>(this->t0.rect.h)};
-    SDL_RenderTextureRotated(
-        this->renderer
-        , this->t0.texture
-        , nullptr
-        , &r1
-        , -90
-        , &t0.center
-        , SDL_FLIP_NONE
-        );
+    return this->world.system<const Node, const Texture>()
+    .each([this](const Node &n, const Texture &t)
+    {
+        SDL_FRect r = {
+            n.pos.x - t.center.x
+            , n.pos.y - t.center.y
+            , t.rect.w
+            , t.rect.h
+            };
+        if (n.angle)
+        {
+            SDL_RenderTextureRotated(
+                this->renderer
+                , t.texture
+                , &t.rect
+                , &r
+                , n.angle
+                , &t.center
+                , SDL_FLIP_NONE
+                );
+        }
+        else
+        {
+            SDL_RenderTexture(
+                this->renderer
+                , t.texture
+                , &t.rect
+                , &r
+                );
+        }
+    });
 }
 
 SDL_Surface *createBaseSurface()

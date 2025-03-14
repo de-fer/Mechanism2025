@@ -1,7 +1,10 @@
 #pragma once
 
 #include <SDL3/SDL.h>
+#include <flecs.h>
+
 #include "JsonLoader.hpp"
+#include "Node.hpp"
 #include "Texture.hpp"
 
 class Model
@@ -22,11 +25,12 @@ public:
 protected:
     void clearWindow();
     void initMechanism();
-    void renderMechanism();
+    flecs::system createRenderMechanismSystem();
 
-    Texture t0;
-    Texture t_image;
-    SDL_FPoint p1, p2;
+    flecs::world world;
+    flecs::system renderMechanism;
+    flecs::entity e0;
+    flecs::entity e1;
 };
 
 SDL_Surface* createBaseSurface();
