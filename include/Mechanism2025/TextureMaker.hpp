@@ -3,18 +3,23 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-static SDL_Texture* textureCreateFromSurface(SDL_Renderer* renderer, SDL_Surface* surface)
+#include "Texture.hpp"
+
+static Texture textureCreateFromSurface(SDL_Renderer* renderer, SDL_Surface* surface)
 {
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    if (!texture){
+    Texture texture;
+    texture.texture = SDL_CreateTextureFromSurface(renderer, surface);
+    if (!texture.texture){
         SDL_Log("[TextureMaker::textureCreateFromSurface] The texture wasn't created from surface %p", surface);
     }
     else {
-        SDL_Log("[TextureMaker::textureCreateFromSurface] The texture was created as %p from surface %p", texture, surface);
+        SDL_Log("[TextureMaker::textureCreateFromSurface] The texture was created as %p from surface %p", texture.texture, surface);
     }
-    SDL_DestroySurface(surface);
+    SDL_SetTextureScaleMode(texture.texture, SDL_SCALEMODE_NEAREST);
+    texture.rect = {0, 0, surface->w, surface->h};
+    texture.center = {surface->w*0.5f, surface->h*0.5f};
 
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    SDL_DestroySurface(surface);
     return texture;
 }
 
@@ -49,17 +54,17 @@ static SDL_Surface* createErrorSurface()
     return surface;
 }
 
-static SDL_Texture* textureLoader(SDL_Renderer* renderer, const char *file_name)
+static Texture textureLoader(SDL_Renderer* renderer, const char *file_name)
 {
-    SDL_Texture* texture = IMG_LoadTexture(renderer, file_name);
-    if (!texture){
+    Texture texture;
+    SDL_Surface* surface = IMG_Load(file_name);
+    if (!surface){
         SDL_Log("[TextureMaker::textureLoader] The %s texture wasn't loaded. Creating error texture!", file_name);
-        texture = textureCreateFromSurface(renderer, createErrorSurface());
+        surface = createErrorSurface();
     }
     else {
-        SDL_Log("[TextureMaker::textureLoader] The %s texture was loaded as %p", file_name, texture);
+        SDL_Log("[TextureMaker::textureLoader] The %s texture was loaded as surface %p", file_name, surface);
     }
-
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    texture = textureCreateFromSurface(renderer, surface);
     return texture;
 }
