@@ -161,6 +161,6 @@ Texture Model::createBaseTexture()
     SDL_DestroyRenderer(renderer);
     SDL_DestroySurface(surface);
 
-    SDL_Log("[Model::createBaseTexture] Texture created: %p [%i x %i]", result.texture, result.rect.w, result.rect.h);
+    SDL_Log("[Model::createBaseTexture] Texture created: %p [%i x %i]", result.texture, static_cast<int>(result.rect.w), static_cast<int>(result.rect.h));
     return result;
 }
