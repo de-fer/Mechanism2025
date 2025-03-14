@@ -8,3 +8,4 @@
 SDL3
 SDL3_image
 nlohmann_json
+flecs

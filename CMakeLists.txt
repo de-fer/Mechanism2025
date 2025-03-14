@@ -16,11 +16,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${Mechanism_HEADERS_DIR})
 find_package (SDL3 CONFIG REQUIRED)
 find_package (SDL3_image CONFIG REQUIRED)
 find_package (nlohmann_json REQUIRED)
+find_package (flecs)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     SDL3::SDL3
     SDL3_image::SDL3_image-shared
     nlohmann_json::nlohmann_json
+    flecs::flecs
 )
 
 # Копируем папку assets и configs  в папку сборки
