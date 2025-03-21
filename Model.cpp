@@ -42,14 +42,27 @@ SDL_AppResult Model::onEvent(SDL_Event *event)
     switch (event->type) {
     case SDL_EVENT_QUIT:
         return SDL_APP_SUCCESS;
+    case SDL_EVENT_KEY_DOWN:
+        return this->onKeyDownEvent(event->key);
     }
 
+    return SDL_APP_CONTINUE;
+}
+
+SDL_AppResult Model::onKeyDownEvent(SDL_KeyboardEvent &event)
+{
+    switch(event.key) {
+    case SDLK_SPACE:
+        this->phi += glm::radians(5.0);
+        break;
+    }
     return SDL_APP_CONTINUE;
 }
 
 SDL_AppResult Model::iterate()
 {
     this->clearWindow();
+    this->solveMechanism();
 
     this->ecs.progress();
 
@@ -72,6 +85,13 @@ void Model::initMechanism()
 {
     this->renderMechanism = this->createRenderMechanismSystem();
 
+    this->p0 = {0.0, 0.0};
+    this->phi = 0.0;
+    this->l1 = 1.0;
+    this->l2 = 2.0;
+
+    this->solveMechanism();
+
     this->e0 = this->ecs.entity()
         .insert([this](Node &n, Texture &t)
         {
@@ -88,6 +108,13 @@ void Model::initMechanism()
         });
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
+}
+
+void Model::solveMechanism()
+{
+    this->p1 = {this->l1, 0.0};
+    this->p1 = glm::rotate(this->p1, this->phi);
+    // SDL_Log("p1: (%f, %f)", this->p1.x, this->p1.y);
 }
 
 flecs::system Model::createRenderMechanismSystem()
