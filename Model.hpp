@@ -8,8 +8,11 @@
 #include <glm/ext.hpp>
 #include <glm/gtx/rotate_vector.hpp>
 
+#include <array>
+
 #include "Node.hpp"
 #include "Texture.hpp"
+#include "Camera.hpp"
 
 class Model
 {
@@ -32,17 +35,19 @@ protected:
     flecs::system createRenderMechanismSystem();
 
     Texture createBaseTexture();
+    Texture createLinkTexture(double l);
 
     flecs::world ecs;
     flecs::system renderMechanism;
     flecs::entity e0;
     flecs::entity e1;
 
+    double scale = 100.0;
+
     double phi; //угол звена 1, радианы
 
     double l1; //длина 1 звена, m
     double l2; //длина 1 звена, m
     glm::dvec2 p0;
-
     glm::dvec2 p1, p2;
 };

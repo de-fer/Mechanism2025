@@ -85,7 +85,7 @@ void Model::initMechanism()
 {
     this->renderMechanism = this->createRenderMechanismSystem();
 
-    this->p0 = {0.0, 0.0};
+    this->p0 = {100.0, 200.0};
     this->phi = 0.0;
     this->l1 = 1.0;
     this->l2 = 2.0;
@@ -95,16 +95,18 @@ void Model::initMechanism()
     this->e0 = this->ecs.entity()
         .insert([this](Node &n, Texture &t)
         {
-            n.position = {100.f, 200.f};
+            n.position = {static_cast<float>(this->p0.x),
+                        static_cast<float>(this->p0.y)};
             n.angle = 0.0;
             t = this->createBaseTexture();
         });
     this->e1 = this->ecs.entity()
         .insert([this](Node &n, Texture &t)
         {
-            n.position = {300.f, 100.f};
-            n.angle = -90.0;
-            t = this->createBaseTexture();
+            n.position = {static_cast<float>(this->p0.x),
+                        static_cast<float>(this->p0.y)};
+            n.angle = this->phi;
+            t = this->createLinkTexture(this->l1);
         });
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
@@ -189,5 +191,58 @@ Texture Model::createBaseTexture()
     SDL_DestroySurface(surface);
 
     SDL_Log("[Model::createBaseTexture] Texture created: %p [%i x %i]", result.texture, static_cast<int>(result.rect.w), static_cast<int>(result.rect.h));
+    return result;
+}
+
+Texture Model::createLinkTexture(double l)
+{
+    Texture result;
+
+    Camera camera;
+    glm::dvec2 pos = {-1.0, -1.0};
+    glm::dvec2 size = {l + 2.0, 2.0};
+    camera.setSceneRect(pos, size);
+
+    result.center = {
+        static_cast <float>(-pos.x * this->scale),
+        static_cast <float>(-pos.y * this->scale)
+    };
+    result.rect = {
+        0.f, 0.f,
+        static_cast<float>(size.x * this->scale),
+        static_cast<float>(size.y * this->scale)
+    };
+    camera.setRendererRect(result.rect);
+
+    std::array<SDL_FPoint, 2> link;
+    link[0] = camera.toRenderer({0.0, 0.0});
+    link[1] = camera.toRenderer({l, 0.0});
+
+    SDL_Surface* surface = SDL_CreateSurface(
+          static_cast<int>(result.rect.w) // Ширина
+        , static_cast<int>(result.rect.h) // Высота
+        , SDL_PIXELFORMAT_RGBA32
+        );
+    SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
+
+    SDL_SetRenderDrawColorFloat(
+        renderer
+        , 0.f, 0.f, 0.f
+        , SDL_ALPHA_OPAQUE_FLOAT
+        );
+    SDL_RenderLines(
+        renderer
+        , link.data()
+        , link.size()
+        );
+    SDL_RenderPresent(renderer);
+    result.texture = SDL_CreateTextureFromSurface(
+        this->renderer
+        , surface
+        );
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroySurface(surface);
+
     return result;
 }
