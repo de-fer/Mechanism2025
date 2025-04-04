@@ -21,7 +21,7 @@ SDL_AppResult Model::init()
     if (!SDL_CreateWindowAndRenderer(
             "Model"
             , 480, 360
-            , 0
+            , SDL_WINDOW_RESIZABLE
             , &this->window
             , &this->renderer
             )
@@ -53,7 +53,7 @@ SDL_AppResult Model::onKeyDownEvent(SDL_KeyboardEvent &event)
 {
     switch(event.key) {
     case SDLK_SPACE:
-        this->phi += glm::radians(5.0);
+        this->phi -= glm::radians(5.0);
         break;
     }
     return SDL_APP_CONTINUE;
@@ -62,7 +62,12 @@ SDL_AppResult Model::onKeyDownEvent(SDL_KeyboardEvent &event)
 SDL_AppResult Model::iterate()
 {
     this->clearWindow();
+
     this->solveMechanism();
+
+    this->updateCamera();
+
+    this->updateNodes();
 
     this->ecs.progress();
 
@@ -87,27 +92,24 @@ void Model::initMechanism()
 
     this->phi = 0.0;
 
-    this->p0 = {100.0, 200.0};
+    this->p0 = {0.0, 0.0};
     this->l1 = 1.0;
     this->l2 = 2.0;
 
-    this->solveMechanism();
-
     this->e0 = this->ecs.entity()
-        .insert([this](Node &n, Texture &t)
+        .insert([this](Texture &t)
         {
-            n.position = {static_cast<float>(this->p0.x),
-                        static_cast<float>(this->p0.y)};
-            n.angle = 0.0;
             t = this->createBaseTexture();
         });
     this->e1 = this->ecs.entity()
-        .insert([this](Node &n, Texture &t)
+        .insert([this](Texture &t)
         {
-            n.position = {static_cast<float>(this->p0.x),
-                        static_cast<float>(this->p0.y)};
-            n.angle = this->phi;
             t = this->createLinkTexture(this->l1);
+        });
+    this->e2 = this->ecs.entity()
+        .insert([this](Texture &t)
+        {
+            t = this->createLinkTexture(this->l2);
         });
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
@@ -115,9 +117,55 @@ void Model::initMechanism()
 
 void Model::solveMechanism()
 {
+    this->a1 = this->phi;
     this->p1 = {this->l1, 0.0};
-    this->p1 = glm::rotate(this->p1, this->phi);
-    // SDL_Log("p1: (%f, %f)", this->p1.x, this->p1.y);
+    this->p1 = glm::rotate(this->p1, this->a1);
+    this->p1 = this->p0 + this->p1;
+
+    this->a2 = -glm::asin(
+        this->l1 / this->l2 * glm::sin(a1)
+        );
+    this->p2 = {this->l2, 0.0};
+    this->p2 = glm::rotate(this->p2, this->a2);
+    this->p2 = this->p1 + this->p2;
+}
+
+void Model::updateNodes()
+{
+    this->e0.set<Node>(this->camera.toRendererNode(
+        this->p0
+        ));
+
+    this->e1.set<Node>(this->camera.toRendererNode(
+        this->p0,
+        this->a1
+        ));
+
+    this->e2.set<Node>(this->camera.toRendererNode(
+        this->p1,
+        this->a2
+        ));
+}
+
+void Model::updateCamera()
+{
+    int w, h;
+    if (!SDL_GetWindowSize(this->window, &w, &h)){
+        SDL_GetError();
+        return;
+    }
+    SDL_FRect rect = {
+        0.0f, 0.0f,
+        static_cast<float>(w),
+        static_cast<float>(h),
+        };
+    this->camera.setRendererRect(rect);
+    glm::dvec2 pos = {-1.0, -1.0};
+    glm::dvec2 size = {
+        static_cast<float>(w) / this->scale,
+        static_cast<float>(h) / this->scale,
+        };
+    this->camera.setSceneRect(pos, size);
 }
 
 flecs::system Model::createRenderMechanismSystem()

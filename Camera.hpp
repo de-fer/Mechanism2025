@@ -4,6 +4,8 @@
 #include <glm/vec2.hpp>
 #include <glm/mat3x3.hpp>
 
+#include "Node.hpp"
+
 class Camera
 {
 public:
@@ -13,6 +15,8 @@ public:
                       const glm::dvec2 &size);
 
     SDL_FPoint toRenderer(const glm::dvec2 &pos) const;
+    Node toRendererNode(const glm::dvec2 pos,
+                double angle = 0.0) const;
 
 private:
     SDL_FRect rect;

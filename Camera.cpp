@@ -29,6 +29,14 @@ SDL_FPoint Camera::toRenderer(const glm::dvec2 &pos) const
     return {static_cast<float>(p.x), static_cast<float>(p.y)};
 }
 
+Node Camera::toRendererNode(const glm::dvec2 pos, double angle) const
+{
+    return {
+        this->toRenderer(pos),
+            -glm::degrees(angle),
+    };
+}
+
 void Camera::updateTransformMatrix()
 {
     glm::dmat3 m = {1.0};
