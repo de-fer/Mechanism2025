@@ -85,8 +85,9 @@ void Model::initMechanism()
 {
     this->renderMechanism = this->createRenderMechanismSystem();
 
-    this->p0 = {100.0, 200.0};
     this->phi = 0.0;
+
+    this->p0 = {100.0, 200.0};
     this->l1 = 1.0;
     this->l2 = 2.0;
 

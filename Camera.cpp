@@ -12,12 +12,14 @@ Camera::Camera()
 void Camera::setRendererRect(const SDL_FRect &rect)
 {
     this->rect = rect;
+    this->updateTransformMatrix();
 }
 
 void Camera::setSceneRect(const glm::dvec2 &pos, const glm::dvec2 &size)
 {
     this->pos = pos;
     this->size = size;
+    this->updateTransformMatrix();
 }
 
 SDL_FPoint Camera::toRenderer(const glm::dvec2 &pos) const
@@ -30,14 +32,14 @@ SDL_FPoint Camera::toRenderer(const glm::dvec2 &pos) const
 void Camera::updateTransformMatrix()
 {
     glm::dmat3 m = {1.0};
-    m = glm::translate(m, -this->pos); //сдвигаем из центра в правый верхний угол
-    m = glm::scale(m, glm::dvec2{
-        static_cast<double>(this->rect.w) / this->size.x,
-        -static_cast<double>(this->rect.h) / this->size.y
-    });
     m = glm::translate(m, glm::dvec2{
         static_cast<double>(this->rect.x),
         static_cast<double>(this->rect.h)
     });
+    m = glm::scale(m, glm::dvec2{
+        static_cast<double>(this->rect.w) / this->size.x,
+        -static_cast<double>(this->rect.h) / this->size.y
+    });
+    m = glm::translate(m, -this->pos); //сдвигаем из центра в правый верхний угол
     this->transform = m;
 }
