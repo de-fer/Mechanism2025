@@ -92,8 +92,9 @@ void Model::initMechanism()
 
     this->phi = glm::radians(90.0);;
 
-    this->p0 = {0.0, 0.0};
+    this->p0 =  {0.0, 0.0};
     this->p03 = {-0.5, 0.09};
+    this->p05 = {0.0, 0.25};
 
     this->l1  = 0.12;
     this->l2  = 0.50;
@@ -101,7 +102,7 @@ void Model::initMechanism()
     this->l2d = 0.2;
     this->a3  = glm::radians(0.0);
     this->a4  = glm::radians(90.0);
-    this->a5  = glm::radians(90.0);
+    this->a5  = glm::radians(-90.0);
 
     this->e0 = this->ecs.entity()
         .insert([this](Texture &t)
@@ -142,6 +143,11 @@ void Model::initMechanism()
         .insert([this](Texture &t)
         {
             t = this->create5LinkTexture();
+        });
+    this->e05 = this->ecs.entity()
+        .insert([this](Texture &t)
+        {
+            t = this->create5BaseTexture();
         });
 
     SDL_Log("[Model::initMechanism] The mechanism has been initialized");
@@ -211,6 +217,10 @@ void Model::updateNodes()
     this->e5.set<Node>(this->camera.toRendererNode(
         this->p5,
         this->a5
+        ));
+
+    this->e05.set<Node>(this->camera.toRendererNode(
+        this->p05
         ));
 }
 
@@ -429,7 +439,8 @@ Texture Model::create5LinkTexture()
 
     Camera camera;
     glm::dvec2 pos =  {0.0, 0.0};
-    glm::dvec2 size = {0.3, 0.08};
+    double width = 0.08;
+    glm::dvec2 size = {0.3, width+0.3*2};
     camera.setSceneRect(pos, size);
 
     result.center = {
@@ -443,14 +454,19 @@ Texture Model::create5LinkTexture()
     };
     camera.setRendererRect(result.rect);
 
-    std::array<SDL_FPoint, 4> vertex;
+    std::array<SDL_FPoint, 8> vertex;
+    vertex[0] = camera.toRenderer({size.x/2   , .01   });
+    vertex[1] = camera.toRenderer({size.x/2   , .3    });
     //нижняя
-    vertex[0] = camera.toRenderer({0.0       , .01   });
-    vertex[1] = camera.toRenderer({size.x-.01, .01   });
-    //правая
-    vertex[2] = camera.toRenderer({size.x-.01, size.y});
+    vertex[2] = camera.toRenderer({size.x-0.01, .3    });
+    vertex[3] = camera.toRenderer({0.0        , .3    });
+    //левая
+    vertex[4] = camera.toRenderer({0.0        , .3+width});
     //верхняя
-    vertex[3] = camera.toRenderer({0.0       , size.y});
+    vertex[5] = camera.toRenderer({size.x-0.01, .3+width});
+    //
+    vertex[6] = camera.toRenderer({size.x/2   , .3+width});
+    vertex[7] = camera.toRenderer({size.x/2   , size.y-0.01});
 
     SDL_Surface* surface = SDL_CreateSurface(
         static_cast<int>(result.rect.w) // Ширина
@@ -469,6 +485,60 @@ Texture Model::create5LinkTexture()
         , vertex.data()
         , vertex.size()
         );
+    SDL_RenderPresent(renderer);
+    result.texture = SDL_CreateTextureFromSurface(
+        this->renderer
+        , surface
+        );
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroySurface(surface);
+
+    return result;
+}
+
+Texture Model::create5BaseTexture()
+{
+    Texture result;
+
+    Camera camera;
+    glm::dvec2 pos =  {0.0, 0.0};
+    glm::dvec2 size = {0.1, 0.05};
+    camera.setSceneRect(pos, size);
+
+    result.center = {
+        static_cast <float>(size.x/2. * this->scale),
+        static_cast <float>(size.y/2. * this->scale)
+    };
+    result.rect = {
+        0.f, 0.f,
+        static_cast<float>(size.x * this->scale),
+        static_cast<float>(size.y * this->scale)
+    };
+    camera.setRendererRect(result.rect);
+
+    std::array<SDL_FPoint, 4> vertex;
+    //нижняя
+    vertex[0] = camera.toRenderer({0.0       , 0.01   });
+    vertex[1] = camera.toRenderer({size.x-.01, 0.01   });
+    //верхняя
+    vertex[2] = camera.toRenderer({size.x-.01, size.y-.01});
+    vertex[3] = camera.toRenderer({0.0       , size.y-.01});
+
+    SDL_Surface* surface = SDL_CreateSurface(
+        static_cast<int>(result.rect.w) // Ширина
+        , static_cast<int>(result.rect.h) // Высота
+        , SDL_PIXELFORMAT_RGBA32
+        );
+    SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
+
+    SDL_SetRenderDrawColorFloat(
+        renderer
+        , 0.f, 0.f, 0.f
+        , SDL_ALPHA_OPAQUE_FLOAT
+        );
+    SDL_RenderLine(renderer, vertex[0].x, vertex[0].y, vertex[1].x, vertex[1].y);
+    SDL_RenderLine(renderer, vertex[2].x, vertex[2].y, vertex[3].x, vertex[3].y);
     SDL_RenderPresent(renderer);
     result.texture = SDL_CreateTextureFromSurface(
         this->renderer
