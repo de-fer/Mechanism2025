@@ -93,6 +93,7 @@ void Model::initMechanism()
     this->phi = glm::radians(90.0);;
 
     this->p0 = {0.0, 0.0};
+    this->p03 = {-0.5, 0.09};
 
     this->l1  = 0.12;
     this->l2  = 0.50;
@@ -126,6 +127,11 @@ void Model::initMechanism()
         .insert([this](Texture &t)
         {
             t = this->createSliderTexture();
+        });
+    this->e03 = this->ecs.entity()
+        .insert([this](Texture &t)
+        {
+            t = this->createBaseSliderTexture();
         });
     this->e4 = this->ecs.entity()
         .insert([this](Texture &t)
@@ -191,6 +197,10 @@ void Model::updateNodes()
     this->e3.set<Node>(this->camera.toRendererNode(
         this->p3,
         this->a3
+        ));
+
+    this->e03.set<Node>(this->camera.toRendererNode(
+        this->p03
         ));
 
     this->e4.set<Node>(this->camera.toRendererNode(
@@ -373,17 +383,16 @@ Texture Model::createSliderTexture()
     };
     camera.setRendererRect(result.rect);
 
-    std::array<SDL_FPoint, 6> vertex;
+    std::array<SDL_FPoint, 5> vertex;
     //нижняя
     vertex[0] = camera.toRenderer({0.0       , .01   });
-    vertex[1] = camera.toRenderer({size.x-.01, .01   });
     //правая
-    vertex[2] = camera.toRenderer({size.x-.01, .01   });
+    vertex[1] = camera.toRenderer({size.x-.01, .01   });
     //верхняя
-    vertex[3] = camera.toRenderer({size.x-.01, size.y});
+    vertex[2] = camera.toRenderer({size.x-.01, size.y});
     //левая
-    vertex[4] = camera.toRenderer({0.0       , size.y});
-    vertex[5] = camera.toRenderer({0.0       , .01   });
+    vertex[3] = camera.toRenderer({0.0       , size.y});
+    vertex[4] = camera.toRenderer({0.0       , .01   });
 
     SDL_Surface* surface = SDL_CreateSurface(
         static_cast<int>(result.rect.w) // Ширина
@@ -442,6 +451,60 @@ Texture Model::create5LinkTexture()
     vertex[2] = camera.toRenderer({size.x-.01, size.y});
     //верхняя
     vertex[3] = camera.toRenderer({0.0       , size.y});
+
+    SDL_Surface* surface = SDL_CreateSurface(
+        static_cast<int>(result.rect.w) // Ширина
+        , static_cast<int>(result.rect.h) // Высота
+        , SDL_PIXELFORMAT_RGBA32
+        );
+    SDL_Renderer* renderer = SDL_CreateSoftwareRenderer(surface);
+
+    SDL_SetRenderDrawColorFloat(
+        renderer
+        , 0.f, 0.f, 0.f
+        , SDL_ALPHA_OPAQUE_FLOAT
+        );
+    SDL_RenderLines(
+        renderer
+        , vertex.data()
+        , vertex.size()
+        );
+    SDL_RenderPresent(renderer);
+    result.texture = SDL_CreateTextureFromSurface(
+        this->renderer
+        , surface
+        );
+
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroySurface(surface);
+
+    return result;
+}
+
+Texture Model::createBaseSliderTexture()
+{
+    Texture result;
+
+    Camera camera;
+    glm::dvec2 pos =  {0.0, 0.0};
+    glm::dvec2 size = {0.5, 0.05};
+    camera.setSceneRect(pos, size);
+
+    result.center = {
+        static_cast <float>(size.x/2. * this->scale),
+        static_cast <float>(-0.06 * this->scale)
+    };
+    result.rect = {
+        0.f, 0.f,
+        static_cast<float>(size.x * this->scale),
+        1.f
+    };
+    camera.setRendererRect(result.rect);
+
+    std::array<SDL_FPoint, 2> vertex;
+    //нижняя
+    vertex[0] = camera.toRenderer({0.0       , .01   });
+    vertex[1] = camera.toRenderer({size.x-.01, .01   });
 
     SDL_Surface* surface = SDL_CreateSurface(
         static_cast<int>(result.rect.w) // Ширина

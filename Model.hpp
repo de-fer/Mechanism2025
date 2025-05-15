@@ -37,6 +37,7 @@ protected:
     flecs::system createRenderMechanismSystem();
 
     Texture createBaseTexture();
+    Texture createBaseSliderTexture();
     Texture createLinkTexture(double l);
     Texture createSliderTexture();
     Texture create5LinkTexture();
@@ -51,6 +52,10 @@ protected:
     flecs::entity e3; // 3 звено
     flecs::entity e4; // 4 звено
     flecs::entity e5; // 5 звено
+
+    flecs::entity e03; // База ползуна
+    flecs::entity e5n; // Крепление 5 звена
+    flecs::entity e05; // База 5 звена
 
     double scale = 300.0;
 
@@ -70,6 +75,6 @@ protected:
     double a4; //угол поворота 4 звена, рад
     double a5; //угол поворота 5 звена, рад
 
-    glm::dvec2 p0; //База
-    glm::dvec2 p1, p2, p2n, p3, p4, p5;
+    glm::dvec2 p0, p03, p05; //База
+    glm::dvec2 p1, p2, p2n, p3, p4, p5, p5n;
 };
